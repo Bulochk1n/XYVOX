@@ -1,0 +1,19 @@
+<!-- Файл: src/main/resources/templates/fragments/news-items.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<div th:fragment="newsItems">
+  <div th:each="item : ${newsList}" class="news-item">
+    <h2 class="news-title">
+      <a th:href="${item.link}" th:text="${item.title}" target="_blank"></a>
+    </h2>
+    <div class="news-meta">
+      <span th:text="${item.source}">Source</span> |
+      <span th:text="${#dates.format(item.pubDate, 'yyyy-MM-dd HH:mm')}">2025-06-06 12:00</span>
+    </div>
+    <p th:utext="${item.summary}" class="news-summary">Summary...</p>
+  </div>
+</div>
+</body>
+</html>

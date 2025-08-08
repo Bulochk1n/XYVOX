@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>XYVOX | Authenticate</title>
+
+    <style>
+
+        @font-face {
+            font-family: 'ArsenicaTrialMedium';
+            src: url('/fonts/ArsenicaTrial-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('/images/xyvox-background-mainpage.png') no-repeat center center;
+            background-size: cover;
+            color: #E0DFFF;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            height: 650px;
+            background: transparent;
+            position: relative;
+        }
+
+
+        .left-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-size: 36px;
+            font-family: 'ArsenicaTrialMedium', sans-serif;
+            color: #BB00FF;
+            text-shadow:
+                    0 0 12px rgba(187, 0, 255, 0.9),
+                    0 0 24px rgba(255, 255, 255, 0.6);
+        }
+        .logo img {
+            height: 36px;
+            width: 36px;
+            filter: drop-shadow(0 0 8px #BB00FF);
+        }
+
+
+        .switcher {
+            display: flex;
+            position: relative;
+            background: #222;
+            border-radius: 40px;
+            width: 260px;
+            margin-bottom: 30px;
+            user-select: none;
+            box-shadow: 0 0 10px rgba(187, 0, 255, 0.4);
+        }
+        .switcher .indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            z-index: 1;
+            box-shadow: 0 0 20px #c77dff66;
+        }
+        .switcher span {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            z-index: 2;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+            text-shadow: 0 0 6px rgba(187, 0, 255, 0.6);
+        }
+        .switcher span.active {
+            color: #000;
+        }
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group label {
+            font-size: 14px;
+            color: #ccc;
+            text-shadow: 0 0 4px rgba(187, 0, 255, 0.5);
+        }
+        .form-group input {
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: none;
+            background: #2a003f;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 10px #c77dff44;
+            transition: box-shadow 0.3s;
+        }
+        .form-group input:focus {
+            box-shadow: 0 0 20px #c77dff;
+        }
+        .error-msg {
+            font-size: 12px;
+            color: #ff6b6b;
+            margin-top: 4px;
+        }
+
+        .submit-btn {
+            margin-top: 15px;
+            padding: 14px;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0 0 25px #9d4eddaa;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+        .submit-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 35px #c77dff;
+        }
+
+
+        .logo {
+
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(187, 0, 255, 0.8);
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-link img {
+            width: 36px;
+            height: 36px;
+            filter: drop-shadow(0 0 8px #BB00FF);
+        }
+
+        .logo-link span {
+            font-family: 'ArsenicaTrialMedium', sans-serif;
+            font-size: 1.5rem;
+            color: #BB00FF;
+            text-shadow:
+                    0 0 8px rgba(255, 255, 255, 0.8),
+                    0 0 16px rgba(187, 0, 255, 0.6);
+            transition: text-shadow 0.3s;
+        }
+
+        .logo-link:hover span {
+            text-shadow:
+                    0 0 12px rgba(255, 255, 255, 1),
+                    0 0 24px rgba(187, 0, 255, 0.8);
+        }
+
+
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="left-panel">
+        <div class="logo">
+            <a th:href="@{/xyvox/api/v1/auth/main-page}" class="logo-link">
+                <img src="/images/logo.png" alt="Logo">
+                <span>XYVOX</span>
+            </a>
+        </div>
+
+        <div class="switcher">
+            <div id="indicator" class="indicator"
+                 th:style="${activeForm == 'signup'} ? 'left: 0%' : 'left: 50%'">
+            </div>
+            <span id="signupTab" class="signup-tab"
+                  th:classappend="${activeForm == 'signup'} ? ' active' : ''">
+        Sign Up
+      </span>
+            <span id="loginTab" class="login-tab"
+                  th:classappend="${activeForm == 'login'} ? ' active' : ''">
+        Log In
+      </span>
+        </div>
+
+        <form id="signupForm"
+              th:action="@{/xyvox/api/v1/auth/register}"
+              th:object="${userDto}"
+              method="post"
+              th:classappend="${activeForm != 'signup'} ? ' hidden' : ''">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="form-group">
+                <label for="email-signup">Email</label>
+                <input type="text"
+                       id="email-signup"
+                       th:field="*{email}"
+                       placeholder="you@example.com"
+                       required>
+                <div th:if="${#fields.hasErrors('email')}"
+                     th:errors="*{email}"
+                     class="error-msg"></div>
+                <div th:if="${emailExistsError}" class="error-msg" th:text="${emailExistsError}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password-signup">Password</label>
+                <input type="password"
+                       id="password-signup"
+                       th:field="*{password}"
+                       placeholder="Enter password"
+                       required>
+                <div th:if="${#fields.hasErrors('password')}"
+                     th:errors="*{password}"
+                     class="error-msg"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="username-signup">Nickname</label>
+                <input type="text"
+                       id="username-signup"
+                       th:field="*{username}"
+                       placeholder="Choose a nickname"
+                       required>
+                <div th:if="${#fields.hasErrors('username')}"
+                     th:errors="*{username}"
+                     class="error-msg"></div>
+                <div th:if="${usernameExistsError}" class="error-msg" th:text="${usernameExistsError}"></div>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+
+        <form id="loginForm"
+              th:action="@{/xyvox/api/v1/auth/login}"
+              method="post"
+              th:classappend="${activeForm != 'login'} ? ' hidden' : ''">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="form-group">
+                <label for="email-login">Email</label>
+                <input type="text"
+                       id="email-login"
+                       name="email"
+                       placeholder="you@example.com"
+                       required>
+                <div th:if="${param.error}" class="error-msg">
+                    Invalid username or password.
+                </div>
+                <div th:if="${param.logout}" class="error-msg" style="color: #6fcf97;">
+                    You have been logged out.
+                </div>
+                <div th:if="${param.registered}" class="error-msg" style="color: #6fcf97;">
+                    Registration successful. Please log in.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password-login">Password</label>
+                <input type="password"
+                       id="password-login"
+                       name="password"
+                       placeholder="Enter password"
+                       required>
+            </div>
+
+            <button type="submit" class="submit-btn">Log In</button>
+        </form>
+    </div>
+
+    <div class="right-panel"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const signupTab = document.getElementById('signupTab');
+        const loginTab = document.getElementById('loginTab');
+        const signupForm = document.getElementById('signupForm');
+        const loginForm = document.getElementById('loginForm');
+        const indicator = document.getElementById('indicator');
+
+        signupTab.addEventListener('click', () => {
+            signupForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            signupTab.classList.add('active');
+            loginTab.classList.remove('active');
+            indicator.style.left = '0%';
+        });
+
+        loginTab.addEventListener('click', () => {
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+            loginTab.classList.add('active');
+            signupTab.classList.remove('active');
+            indicator.style.left = '50%';
+        });
+    });
+</script>
+
+</body>
+</html>

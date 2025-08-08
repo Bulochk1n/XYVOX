@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: XYVOX
+
+  datasource:
+    url: jdbc:h2:mem:XyvoxDB;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:SQLdata/schema.sql
+      data-locations: classpath:SQLdata/data.sql
+
+

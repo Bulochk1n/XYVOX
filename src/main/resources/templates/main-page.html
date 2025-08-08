@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>XYVOX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <style>
+
+    @font-face {
+      font-family: 'ArsenicaTrialMedium';
+      src: url('/fonts/ArsenicaTrial-Medium.ttf') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: url('/images/xyvox-background-mainpage.png') no-repeat center center;
+      background-size: cover;
+      color: #E0DFFF;
+      font-family: 'Orbitron', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    @keyframes pulse {
+      0% {
+        text-shadow:
+                0 0 8px rgba(187, 0, 255, 0.6),
+                0 0 16px rgba(187, 0, 255, 0.4);
+      }
+      50% {
+        text-shadow:
+                0 0 16px rgb(122, 0, 255),
+                0 0 32px rgb(148, 120, 200);
+      }
+      100% {
+        text-shadow:
+                0 0 8px rgba(187, 0, 255, 0.6),
+                0 0 16px rgba(187, 0, 255, 0.4);
+      }
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-left img.logo {
+      width: 40px;
+      height: 40px;
+      margin-right: 20px;
+    }
+
+    .navbar-left .nav-links a {
+      margin-right: 32px;
+      text-decoration: none;
+      color: #E0DFFF;
+      font-size: 1.2rem;
+      position: relative;
+      transition: color 0.2s ease-in-out;
+      animation: pulse 4s infinite;
+    }
+
+    .navbar-left .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: #BB00FF;
+      transition: width 0.2s ease-in-out;
+    }
+
+    .navbar-left .nav-links a:hover {
+      color: #FFFFFF;
+    }
+
+    .navbar-left .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .navbar-right .btn {
+      margin-left: 24px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      border: 2px solid transparent;
+      border-radius: 30px;
+      background: none;
+      color: #E0DFFF;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease-in-out;
+      animation: pulse 3.5s infinite;
+    }
+
+    .navbar-right .btn.login {
+      border-color: transparent;
+    }
+    .navbar-right .btn.login:hover {
+      color: #FFFFFF;
+      text-shadow:
+              0 0 12px rgba(187, 0, 255, 0.9),
+              0 0 24px rgba(187, 0, 255, 0.7);
+      transform: scale(1.05);
+    }
+
+
+    .navbar-right .btn.signup {
+      border: 2px solid #BB00FF;
+    }
+    .navbar-right .btn.signup:hover {
+      background: rgba(187, 0, 255, 0.3);
+      border-color: #FFFFFF;
+      color: #FFFFFF;
+      text-shadow:
+              0 0 12px rgba(255, 255, 255, 0.9),
+              0 0 24px rgba(255, 255, 255, 0.7);
+      transform: scale(1.05);
+    }
+
+
+    .hero {
+      position: absolute;
+      top: 50%;
+      left: 22%;
+      transform: translate(-40%, -50%);
+      text-align: center;
+      width: 60%;
+      max-width: 700px;
+      z-index: 5;
+    }
+
+    .hero h1 {
+      font-family: 'ArsenicaTrialMedium', 'Orbitron', sans-serif;
+      font-size: 7rem;
+      color: #BB00FF;
+      animation: pulse 6s infinite;
+      margin-bottom: 24px;
+      text-shadow:
+              0 0 12px rgba(187, 0, 255, 0.8),
+              0 0 24px rgba(187, 0, 255, 0.6),
+              0 0 36px rgba(255, 255, 255, 0.4);
+    }
+
+    .hero p.quote {
+      font-size: 1.5rem;
+      color: #9478c8;
+      text-shadow:
+              0 0 6px rgba(187, 0, 255, 0.6),
+              0 0 12px rgba(187, 0, 255, 0.4);
+      line-height: 1.6;
+      animation: pulse 6s infinite;
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="navbar-left">
+
+    <img src="/images/logo.png" alt="XYVOX Logo" class="logo" />
+
+    <nav class="nav-links">
+      <a th:href="@{/xyvox/api/v1/trade}">Trade</a>
+      <a th:href="@{/xyvox/api/v1/news}">News</a>
+      <a th:href="@{/xyvox/api/v1/posts}">Posts</a>
+      <a sec:authorize="isAuthenticated()" th:href="@{/xyvox/api/v1/users/my-profile}" class="btn profile">Profile</a>
+    </nav>
+  </div>
+  <div class="navbar-right">
+    <div sec:authorize="!isAuthenticated()">
+      <a th:href="@{/xyvox/api/v1/auth(form='login')}" class="btn login">Log In</a>
+      <a th:href="@{/xyvox/api/v1/auth(form='signup')}" class="btn signup">Sign Up</a>
+    </div>
+
+    <div sec:authorize="isAuthenticated()">
+      <form th:action="@{/xyvox/api/v1/auth/logout}" method="post" style="display:inline;">
+        <button type="submit" class="btn logout">Logout</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+
+  <h1>XYVOX</h1>
+
+  <p class="quote">
+    Deep within the fractured mesh, XYVOX burns<br>
+    like a silent rune. Those who decode its<br>
+    rhythm unlock more than just data.
+  </p>
+</section>
+</body>
+</html>

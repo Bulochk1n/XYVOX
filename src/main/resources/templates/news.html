@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Crypto News Feed</title>
+  <link rel="stylesheet" th:href="@{/css/trade-styles.css}"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: url('/images/xyvox-background-mainpage.png') no-repeat center center;
+      background-size: cover;
+      color: #E0DFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+
+
+    .navbar-left .nav-links .active {
+      color: #FFFFFF;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+    }
+    .navbar-left { display: flex; align-items: center; }
+    .navbar-left img.logo { width: 40px; height: 40px; margin-right: 16px; filter: drop-shadow(0 0 8px #BB00FF); }
+    .navbar-left .logo-text {
+      font-family: 'ArsenicaTrialMedium', sans-serif;
+      font-size: 2rem;
+      color: #BB00FF;
+      text-shadow: 0 0 12px rgba(255,255,255,0.8), 0 0 24px rgba(187,0,255,0.6);
+      margin-right: 40px;
+    }
+    .navbar-left .nav-links a {
+      margin-right: 32px;
+      font-size: 1.1rem;
+      position: relative;
+      transition: color 0.2s;
+      animation: pulse 4s infinite;
+    }
+    .navbar-left .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; left: 0; width: 0; height: 3px;
+      background: #BB00FF; transition: width 0.2s;
+    }
+    .navbar-left .nav-links a:hover { color: #FFF; }
+    .navbar-left .nav-links a:hover::after { width:100%; }
+    .navbar-left .nav-links .active { color: #FFF; }
+
+    .navbar-right .btn {
+      margin-left: 24px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      border: 2px solid transparent;
+      border-radius: 30px;
+      color: #E0DFFF;
+      text-transform: uppercase;
+      transition: all 0.2s ease-in-out;
+      animation: pulse 3.5s infinite;
+    }
+    .navbar-right .btn.logout { border-color: #BB00FF; }
+    .navbar-right .btn.logout:hover {
+      background: rgba(187,0,255,0.3);
+      border-color: #FFF; color: #FFF;
+      text-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 24px rgba(255,255,255,0.7);
+      transform: scale(1.05);
+    }
+    .navbar-right .btn.login:hover,
+    .navbar-right .btn.signup:hover { transform: scale(1.05); }
+
+    /* Keyframes */
+    @keyframes pulse {
+      0%,100%{text-shadow:0 0 8px rgba(187,0,255,0.6),0 0 16px rgba(187,0,255,0.4);}
+      50% {text-shadow:0 0 16px rgba(255,255,255,0.8),0 0 32px rgba(187,0,255,0.6);}
+    }
+
+    .news-container {
+      padding: 20px 60px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .news-item {
+      background: rgba(46,0,70,0.8);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 20px rgba(187,0,255,0.6);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .news-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255,255,255,0.7);
+    }
+
+    .news-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .news-title {
+      font-size: 1.4rem;
+      color: #BB00FF;
+      text-shadow: 0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(187,0,255,0.6);
+    }
+    .news-meta {
+      font-size: 0.85rem;
+      color: #D8CFFF;
+      text-shadow: 0 0 4px rgba(255,255,255,0.6);
+      white-space: nowrap;
+    }
+
+    .news-summary {
+      margin-top: 12px;
+      font-size: 1rem;
+      color: #E0DFFF;
+      line-height: 1.5;
+    }
+    .news-source {
+      font-size: 0.9rem;
+      color: #D8CFFF;
+      margin-top: 8px;
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(187,0,255,0.3);
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(187,0,255,0.4);
+    }
+
+    .news-actions {
+      margin-top: 12px;
+    }
+    .action-btn {
+      padding: 6px 12px;
+      margin-right: 8px;
+      border-radius: 6px;
+      color: #000;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .edit-btn { background: #c96bff; }
+    .delete-btn { background: #7a00ff; }
+    .action-btn:hover { transform: scale(1.05); }
+
+    .load-more-wrapper {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .load-more-btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background: #BB00FF;
+      color: #000;
+      border-radius: 24px;
+      box-shadow: 0 0 16px rgba(187,0,255,0.6);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .load-more-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 24px rgba(255,255,255,0.7);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="navbar-left">
+    <img src="/images/logo.png" alt="XYVOX Logo" class="logo"/>
+    <span class="logo-text">XYVOX</span>
+    <nav class="nav-links">
+      <a th:href="@{/xyvox/api/v1/trade}">Trade</a>
+      <a th:href="@{/xyvox/api/v1/news}" th:class="active">News</a>
+      <a th:href="@{/xyvox/api/v1/posts}">Posts</a>
+      <a sec:authorize="isAuthenticated()" th:href="@{/xyvox/api/v1/users/my-profile}">Profile</a>
+    </nav>
+  </div>
+  <div class="navbar-right">
+    <div sec:authorize="isAuthenticated()">
+      <form th:action="@{/xyvox/api/v1/auth/logout}" method="post" style="display:inline;">
+        <button type="submit" class="btn logout">Log Out</button>
+      </form>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+      <a th:href="@{/xyvox/api/v1/auth(form='login')}" class="btn login">Log In</a>
+      <a th:href="@{/xyvox/api/v1/auth(form='signup')}" class="btn signup">Sign Up</a>
+    </div>
+  </div>
+</header>
+
+<div style="text-align:center; margin:20px 0;"
+     sec:authorize="hasAnyRole('MODERATOR','ADMIN')">
+  <a th:href="@{/xyvox/api/v1/news/add-news}" class="action-btn edit-btn">➕ Add News</a>
+</div>
+
+<div class="news-container">
+  <div th:each="item : ${newsList}" class="news-item">
+    <div class="news-header">
+      <h2 class="news-title">
+        <a th:href="${item.link}" th:text="${item.title}" target="_blank"></a>
+      </h2>
+      <span class="news-meta"
+            th:text="${#temporals.format(item.pubDate,'yyyy-MM-dd HH:mm')}"></span>
+    </div>
+    <p class="news-summary" th:text="${item.summary}"></p>
+    <span class="news-source" th:text="${item.source}"></span>
+
+    <div class="news-actions"
+         sec:authorize="hasAnyRole('MODERATOR','ADMIN')">
+      <a th:href="@{/xyvox/api/v1/news/edit/{id}(id=${item.id})}"
+         class="action-btn edit-btn">✏️ Edit</a>
+      <form th:action="@{/xyvox/api/v1/news/delete/{id}(id=${item.id})}"
+            method="post" style="display:inline">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="action-btn delete-btn"
+                onclick="return confirm('Удалить эту новость?')">🗑️ Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

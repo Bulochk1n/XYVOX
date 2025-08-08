@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>XYVOX | Trading</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+
+        @font-face {
+            font-family: 'ArsenicaTrialMedium';
+            src: url('/fonts/ArsenicaTrial-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: url('/images/xyvox-background-mainpage.png') no-repeat center center;
+            background-size: cover;
+            color: #E0DFFF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; border: none; background: none; }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            flex-shrink: 0;
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-left img.logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 16px;
+            filter: drop-shadow(0 0 8px #BB00FF);
+        }
+        .navbar-left .logo-text {
+            font-family: 'ArsenicaTrialMedium', sans-serif;
+            font-size: 2rem;
+            color: #BB00FF;
+            text-shadow:
+                    0 0 12px rgba(255, 255, 255, 0.8),
+                    0 0 24px rgba(187, 0, 255, 0.6);
+            margin-right: 40px;
+        }
+        .navbar-left .nav-links a {
+            margin-right: 32px;
+            font-size: 1.1rem;
+            position: relative;
+            transition: color 0.2s ease-in-out;
+            animation: pulse 4s infinite;
+        }
+        .navbar-left .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: #BB00FF;
+            transition: width 0.2s;
+        }
+        .navbar-left .nav-links a:hover {
+            color: #FFFFFF;
+        }
+        .navbar-left .nav-links a:hover::after {
+            width: 100%;
+        }
+        .navbar-left .nav-links .active {
+            color: #FFFFFF;
+        }
+        .navbar-right .btn.logout {
+            margin-left: 24px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            border: 2px solid #BB00FF;
+            border-radius: 24px;
+            background: none;
+            color: #E0DFFF;
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+            animation: pulse 3.5s infinite;
+        }
+        .navbar-right .btn.logout:hover {
+            background: rgba(187, 0, 255, 0.3);
+            border-color: #FFFFFF;
+            color: #FFFFFF;
+            text-shadow:
+                    0 0 12px rgba(255, 255, 255, 0.9),
+                    0 0 24px rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+
+        .navbar-right .btn {
+            margin-left: 24px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: 30px;
+            background: none;
+            color: #E0DFFF;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+            animation: pulse 3.5s infinite;
+        }
+
+        .navbar-right .btn.login {
+            border-color: transparent;
+        }
+        .navbar-right .btn.login:hover {
+            color: #FFFFFF;
+            text-shadow:
+                    0 0 12px rgba(187, 0, 255, 0.9),
+                    0 0 24px rgba(187, 0, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+
+        .navbar-right .btn.signup {
+            border: 2px solid #BB00FF;
+        }
+        .navbar-right .btn.signup:hover {
+            background: rgba(187, 0, 255, 0.3);
+            border-color: #FFFFFF;
+            color: #FFFFFF;
+            text-shadow:
+                    0 0 12px rgba(255, 255, 255, 0.9),
+                    0 0 24px rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0% {
+                text-shadow:
+                        0 0 8px rgba(187, 0, 255, 0.6),
+                        0 0 16px rgba(187, 0, 255, 0.4);
+            }
+            50% {
+                text-shadow:
+                        0 0 16px rgba(255, 255, 255, 0.8),
+                        0 0 32px rgba(187, 0, 255, 0.6);
+            }
+            100% {
+                text-shadow:
+                        0 0 8px rgba(187, 0, 255, 0.6),
+                        0 0 16px rgba(187, 0, 255, 0.4);
+            }
+        }
+
+
+        .trade-container {
+            flex: 0 0 85vh;
+            display: flex;
+            gap: 24px;
+            padding: 20px 60px;
+            overflow: hidden;
+        }
+
+
+        .chart-panel {
+            flex: 2;
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 20px rgba(187, 0, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chart-header {
+            font-family: 'ArsenicaTrialMedium', sans-serif;
+            font-size: 1.5rem;
+            color: #BB00FF;
+            text-shadow:
+                    0 0 8px rgba(255, 255, 255, 0.8),
+                    0 0 16px rgba(187, 0, 255, 0.6);
+            margin-bottom: 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .chart-widget {
+            flex: 1;
+            overflow: hidden;
+        }
+
+
+        .trading-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+
+        .market-switcher {
+            display: flex;
+            background: #222;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            width: 200px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 8px rgba(187, 0, 255, 0.6);
+            flex-shrink: 0;
+        }
+        .market-switcher .indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border-radius: 40px;
+            transition: all 0.3s ease;
+        }
+        .market-switcher span {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            z-index: 1;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .market-switcher span.active {
+            color: #000;
+        }
+
+
+        .order-type-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        .order-type-tabs button {
+            flex: 1;
+            padding: 8px 0;
+            background: transparent;
+            color: #E0DFFF;
+            font-size: 0.9rem;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            position: relative;
+            transition: all 0.2s ease;
+            animation: pulse 4s infinite;
+        }
+        .order-type-tabs button.active {
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border: 2px solid #BB00FF;
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+        }
+        .order-type-tabs button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+        }
+
+
+        .order-form {
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 16px rgba(187, 0, 255, 0.6);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .order-form.active {
+            display: flex;
+        }
+        .order-form label {
+            font-size: 0.9rem;
+            color: #D8CFFF;
+        }
+        .order-form input,
+        .order-form select {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: none;
+            background: #3e0054;
+            color: #fff;
+            font-size: 0.9rem;
+            box-shadow: 0 0 8px #c77dff44;
+            transition: box-shadow 0.3s;
+        }
+        .order-form input:focus,
+        .order-form select:focus {
+            box-shadow: 0 0 16px #c77dff;
+            outline: none;
+        }
+
+        .side-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .side-buttons button {
+            flex: 1;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .long-btn {
+            background: #6fcf97;
+            color: #000;
+            box-shadow: 0 0 12px rgba(111, 207, 151, 0.6);
+        }
+        .long-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+        .short-btn {
+            background: #ff6b6b;
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.6);
+        }
+        .short-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+        .buy-btn {
+            background: #9d4edd;
+            color: #000;
+            box-shadow: 0 0 12px rgba(157, 78, 221, 0.6);
+        }
+        .buy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+        .sell-btn {
+            background: #ffb400;
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 180, 0, 0.6);
+        }
+        .sell-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+
+
+        .balance-card {
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.9rem;
+            color: #E0DFFF;
+            text-align: center;
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+            margin-top: 12px;
+            flex-shrink: 0;
+        }
+        .balance-card strong {
+            color: #BB00FF;
+        }
+
+
+        .balances-table-container {
+            margin-top: 12px;
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 12px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+        }
+
+
+        .balances-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+
+        .balances-table thead th {
+            background: #BB00FF;
+            color: #000;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            text-align: left;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+
+        .balances-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.2s;
+        }
+
+        .balances‐table‐container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .balances‐table‐container::-webkit-scrollbar-thumb {
+            background‐color: rgba(187, 0, 255, 0.5);
+            border-radius: 3px;
+        }
+        .balances-table tbody tr:hover {
+            background: rgba(187, 0, 255, 0.2);
+        }
+
+
+        .balances-table tbody td {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            color: #D8CFFF;
+        }
+
+        /
+        .balances-table tbody td:first-child {
+            font-weight: bold;
+            color: #BB00FF;
+        }
+
+
+        .bottom-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 60px 20px 60px;
+            gap: 12px;
+            overflow: hidden;
+            position : relative;
+            z-index : 10;
+        }
+        .bottom-tabs {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .bottom-tabs button {
+            flex: 1;
+            padding: 8px 0;
+            background: transparent;
+            color: #E0DFFF;
+            font-size: 0.9rem;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            animation: pulse 4s infinite;
+        }
+        .bottom-tabs button.active {
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border: 2px solid #BB00FF;
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+        }
+        .bottom-tabs button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+        }
+
+        .bottom-content {
+            background: rgba(46, 0, 70, 0.8);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 0 12px rgba(187, 0, 255, 0.6);
+            flex: 1;
+            overflow-y: auto;
+            color: #D8CFFF;
+            font-size: 0.9rem;
+        }
+
+
+        .bottom-content table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 8px;
+        }
+
+
+        .bottom-content table thead th {
+            background: #BB00FF;
+            color: #000;
+            font-weight: bold;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            text-shadow: 0 0 4px rgba(255,255,255,0.6);
+        }
+
+
+        .bottom-content table tbody td {
+            background: #3e0054;
+            color: #E0DFFF;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+
+        .bottom-content table tbody td:first-child {
+            width: 12%;
+        }
+
+
+        .bottom-content table tbody td:nth-child(2),
+        .bottom-content table tbody td:nth-child(3) {
+            width: 10%;
+        }
+        .bottom-content table tbody td:nth-child(4),
+        .bottom-content table tbody td:nth-child(5),
+        .bottom-content table tbody td:nth-child(6) {
+            width: 12%;
+        }
+        .bottom-content table tbody td:nth-child(7) {
+            width: 10%;
+        }
+        .bottom-content table tbody td:nth-child(8) {
+            width: 16%;
+        }
+
+
+        .bottom-content table tbody tr td {
+            border-radius: 6px;
+        }
+
+
+        .bottom-content table tbody tr:hover td {
+            background: #5e017a;
+            box-shadow: 0 0 8px rgba(255,255,255,0.2);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+
+        .bottom-content table tbody tr td[colspan] {
+            background: transparent;
+            color: #D8CFFF;
+            text-align: center;
+            font-style: italic;
+            padding: 20px 0;
+            border-radius: 6px;
+        }
+
+        .bottom-content table tbody tr td[colspan] {
+            box-shadow: none;
+        }
+
+
+        .bottom-content table thead th:not(:last-child),
+        .bottom-content table tbody td:not(:last-child) {
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .bottom-content table tbody td:last-child {
+            text-align: right;
+        }
+
+
+        .bottom-content {
+            padding-top: 16px;
+        }
+
+
+        .bottom-content {
+            position: relative;
+            z-index: 10;
+        }
+        .btn-close {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: #c96bff;
+            color: #000;
+            border-radius: 20px;
+            box-shadow: 0 0 8px rgba(174, 107, 255, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+        }
+
+        .navbar-left .nav-links .active {
+            color: #FFFFFF;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="navbar-left">
+        <img src="/images/logo.png" alt="XYVOX Logo" class="logo"/>
+        <span class="logo-text">XYVOX</span>
+        <nav class="nav-links">
+            <a th:href="@{/xyvox/api/v1/trade}" th:class="active">Trade</a>
+            <a th:href="@{/xyvox/api/v1/news}">News</a>
+            <a th:href="@{/xyvox/api/v1/posts}">Posts</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/xyvox/api/v1/users/my-profile}">Profile</a>
+        </nav>
+    </div>
+    <div class="navbar-right">
+
+        <div sec:authorize="isAuthenticated()">
+            <form th:action="@{/xyvox/api/v1/auth/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn logout">Log Out</button>
+            </form>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a th:href="@{/xyvox/api/v1/auth(form='login')}" class="btn login">Log In</a>
+            <a th:href="@{/xyvox/api/v1/auth(form='signup')}" class="btn signup">Sign Up</a>
+        </div>
+    </div>
+</header>
+
+<div class="trade-container">
+    <div class="chart-panel">
+        <div class="chart-header">Live Crypto Chart</div>
+        <div class="chart-widget" id="tradingview_chart"></div>
+    </div>
+
+
+    <div class="trading-panel">
+        <label for="symbolSelect" style="font-size:0.9rem; color:#D8CFFF;">
+            Select Market:
+        </label>
+        <select id="symbolSelect"
+                style="padding:8px 12px; border-radius:20px; background:#3e0054; color:#fff; box-shadow:0 0 8px #c77dff44; margin-bottom:16px;">
+        </select>
+        <input type="hidden" name="symbol" id="symbolGeneral"/>
+
+        <div sec:authorize="isAuthenticated()">
+            <div class="market-switcher" id="marketSwitcher">
+                <div class="indicator" id="marketIndicator"></div>
+                <span id="perpsTab" class="active">Perps</span>
+                <span id="spotTab">Spot</span>
+            </div>
+
+            <div class="order-type-tabs">
+                <button id="marketBtn" class="active">Market</button>
+                <button id="limitBtn">Limit</button>
+            </div>
+
+
+            <form th:action="@{/xyvox/api/v1/trade/perps/market}" method="post"
+                  class="order-form active" id="perpsMarketForm">
+                <input type="hidden" name="symbol" id="perpsMarketSymbol"/>
+                <input type="hidden" name="currentPrice" id="perpsMarketPrice"/>
+
+                <div th:if="${error}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${error}">Error occurred.</span>
+                </div>
+                <div th:if="${notEnoughBalance}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${notEnoughBalance}">Not enough balance.</span>
+                </div>
+                <div th:if="${invalidExecPrice}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${invalidExecPrice}">Invalid execution price.</span>
+                </div>
+                <div th:if="${invalidSlTpValue}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${invalidSlTpValue}">Invalid StopLoss/TakeProfit value.</span>
+                </div>
+
+                <label for="perps-market-leverage">Leverage:</label>
+                <select id="perps-market-leverage" name="leverage">
+                    <option>1x</option>
+                    <option>5x</option>
+                    <option>10x</option>
+                    <option>20x</option>
+                    <option>50x</option>
+                </select>
+
+                <label for="perps-market-size">Size:</label>
+                <input type="number" id="perps-market-size" name="size" placeholder="0.0" step="0.0001"/>
+
+                <label for="perps-market-sl">Stop Loss:</label>
+                <input type="number" id="perps-market-sl" name="stopLoss" placeholder="0.0" step="0.0001"/>
+
+                <label for="perps-market-tp">Take Profit:</label>
+                <input type="number" id="perps-market-tp" name="takeProfit" placeholder="0.0" step="0.0001"/>
+
+                <div class="side-buttons">
+                    <button type="submit" name="side" value="long" class="long-btn">Long</button>
+                    <button type="submit" name="side" value="short" class="short-btn">Short</button>
+                </div>
+            </form>
+
+            <form th:action="@{/xyvox/api/v1/trade/perps/limit}" method="post"
+                  class="order-form" id="perpsLimitForm">
+                <input type="hidden" name="symbol" id="perpsLimitSymbol"/>
+                <input type="hidden" name="currentPrice" id="perpsLimitPrice"/>
+
+                <div th:if="${error}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${error}">Error occurred.</span>
+                </div>
+                <div th:if="${notEnoughBalance}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${notEnoughBalance}">Not enough balance.</span>
+                </div>
+                <div th:if="${invalidExecPrice}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${invalidExecPrice}">Invalid execution price.</span>
+                </div>
+
+                <label for="perps-limit-price">Price:</label>
+                <input type="number" id="perps-limit-price" name="price" placeholder="0.0" step="0.0001"/>
+
+                <label for="perps-limit-leverage">Leverage:</label>
+                <select id="perps-limit-leverage" name="leverage">
+                    <option>1x</option>
+                    <option>5x</option>
+                    <option>10x</option>
+                    <option>20x</option>
+                    <option>50x</option>
+                </select>
+
+                <label for="perps-limit-size">Size:</label>
+                <input type="number" id="perps-limit-size" name="size" placeholder="0.0" step="0.0001"/>
+
+                <label for="perps-limit-sl">Stop Loss:</label>
+                <input type="number" id="perps-limit-sl" name="stopLoss" placeholder="0.0" step="0.0001"/>
+
+                <label for="perps-limit-tp">Take Profit:</label>
+                <input type="number" id="perps-limit-tp" name="takeProfit" placeholder="0.0" step="0.0001"/>
+
+                <div class="side-buttons">
+                    <button type="submit" name="side" value="long" class="long-btn">Long</button>
+                    <button type="submit" name="side" value="short" class="short-btn">Short</button>
+                </div>
+            </form>
+
+            <form th:action="@{/xyvox/api/v1/trade/spot/market}" method="post"
+                  class="order-form" id="spotMarketForm">
+                <input type="hidden" name="symbol" id="spotMarketSymbol"/>
+                <input type="hidden" name="currentPrice" id="spotMarketPrice"/>
+
+
+                <div th:if="${error}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${error}">Error occurred.</span>
+                </div>
+                <div th:if="${notEnoughBalance}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${notEnoughBalance}">You don't have enough balance.</span>
+                </div>
+
+                <label for="spot-market-size">Size:</label>
+                <input type="number" id="spot-market-size" name="size" placeholder="0.0" step="0.0001" min="0.0001" required/>
+
+                <div class="side-buttons">
+                    <button type="submit" name="side" value="buy" class="buy-btn">Buy</button>
+                    <button type="submit" name="side" value="sell" class="sell-btn">Sell</button>
+                </div>
+            </form>
+
+            <form th:action="@{/xyvox/api/v1/trade/spot/limit}" method="post"
+                  class="order-form" id="spotLimitForm">
+                <input type="hidden" name="symbol" id="spotLimitSymbol"/>
+                <input type="hidden" name="currentPrice" id="spotLimitPrice"/>
+
+                <div th:if="${error}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${error}">Error occurred.</span>
+                </div>
+                <div th:if="${notEnoughBalance}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${notEnoughBalance}">You don't have enough balance.</span>
+                </div>
+                <div th:if="${invalidExecPrice}" class="error-msg" style="margin-bottom:8px;">
+                    <span th:text="${invalidExecPrice}">Invalid execution price.</span>
+                </div>
+
+                <label for="spot-limit-price">Price:</label>
+                <input type="number" id="spot-limit-price" name="price" placeholder="0.0" step="0.0001" min="0.0001" required/>
+
+                <label for="spot-limit-size">Size:</label>
+                <input type="number" id="spot-limit-size" name="size" placeholder="0.0" step="0.0001" min="1" required/>
+
+                <div class="side-buttons">
+                    <button type="submit" name="side" value="buy" class="buy-btn">Buy</button>
+                    <button type="submit" name="side" value="sell" class="sell-btn">Sell</button>
+                </div>
+            </form>
+
+            <div class="balance-card">
+                Balance (USDT): <strong th:text="${balanceUSDT}">0</strong>
+            </div>
+
+            <div id="balances-container" class="balances-table-container" th:if="${#lists.size(walletCoins) > 0}">
+                <table class="balances-table">
+                    <thead>
+                    <tr>
+                        <th>Coin</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:each="wc : ${walletCoins}">
+                        <td th:text="${wc.coin.symbol}">err</td>
+                        <td th:text="${wc.amount}">err</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div sec:authorize="isAuthenticated()" class="bottom-container">
+    <div class="bottom-tabs" id="bottomTabs">
+        <button id="positionsTab" class="active">Positions</button>
+        <button id="openSpotOrdersTab">Open Spot Orders</button>
+        <button id="openPerpsOrdersTab">Open Perps Orders</button>
+        <button id="tradeHistoryTab">Trade History</button>
+        <button id="orderHistoryTab">Order History</button>
+    </div>
+
+    <div class="bottom-content hidden" id="positionsContent">
+        <table class="transactions-table">
+            <thead>
+            <tr th:if="${!#lists.isEmpty(futuresPositionsOpen)}">
+                <th>Coin</th>
+                <th>Side</th>
+                <th>Exec. Price</th>
+                <th>Amount</th>
+                <th>Provided Value</th>
+                <th>Position Value</th>
+                <th>StopLoss</th>
+                <th>TakeProfit</th>
+                <th>P&L</th>
+                <th>Time</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="position : ${futuresPositionsOpen}">
+                <td th:text="${position.futuresOrder.coin.symbol}">ETH</td>
+                <td th:text="${position.side}">LONG</td>
+                <td th:text="${position.entryPrice}">2000.00</td>
+                <td th:text="${position.amount}">1.5</td>
+                <td th:text="${position.providedValue}">3000.00</td>
+                <td th:text="${position.providedValue * position.leverage}">3000.00</td>
+                <td th:if="${position.stopLoss > 0}" th:text="${position.stopLoss}">-</td>
+                <td th:unless="${position.stopLoss > 0}">-</td>
+                <td th:if="${position.takeProfit > 0}" th:text="${position.takeProfit}">-</td>
+                <td th:unless="${position.takeProfit > 0}">-</td>
+                <td>
+                        <span
+                                class="pnl-value"
+                                th:data-symbol="${position.futuresOrder.coin.symbol}"
+                                th:data-entry="${position.entryPrice}"
+                                th:data-amount="${position.amount}"
+                                th:data-leverage="${position.leverage}"
+                                th:data-sl="${position.stopLoss}"
+                                th:data-tp="${position.takeProfit}"
+                                th:data-provided="${position.providedValue}"
+                                th:data-id="${position.id}"
+                                th:data-side="${position.side}">
+                            0.00
+                        </span>
+                </td>
+                <td th:text="${#dates.format(position.openedAt, 'yyyy-MM-dd HH:mm:ss')}">2025‑06‑03 10:30:00</td>
+                <td>
+                    <form th:action="@{/xyvox/api/v1/trade/perps/position/close}" method="post" style="display:inline;">
+                        <input type="hidden" name="positionId" th:value="${position.id}" />
+                        <button type="submit" class="btn-close">Close</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(futuresPositionsOpen)}">
+                <td colspan="11" style="color:#D8CFFF; text-align:center; padding:12px;">
+                    No open positions.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="bottom-content hidden" id="openSpotOrdersContent">
+        <table class="transactions-table">
+            <thead>
+            <tr th:if="${!#lists.isEmpty(spotOrdersOpen)}">
+                <th>Coin</th>
+                <th>Order Type</th>
+                <th>Side</th>
+                <th>Exec. Price</th>
+                <th>Amount</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${spotOrdersOpen}">
+                <td th:text="${order.coin.symbol}">err</td>
+                <td th:text="${order.type}">err</td>
+                <td th:text="${order.side}">err</td>
+                <td th:text="${order.price}">err</td>
+                <td th:text="${order.amount}">err</td>
+                <td th:text="${order.orderValue}">err</td>
+                <td th:text="${order.status}">err</td>
+                <td th:text="${#dates.format(order.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025‑06‑04 14:00:00</td>
+                <td>
+                    <form th:action="@{/xyvox/api/v1/trade/spot/limit/close}" method="post" style="display:inline;">
+                        <input type="hidden" name="orderId" th:value="${order.id}" />
+                        <button type="submit" class="btn-close">Close</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(spotOrdersOpen)}">
+                <td colspan="9" style="color:#D8CFFF; text-align:center; padding:12px;">
+                    No open spot orders.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bottom-content hidden" id="openFuturesOrdersContent">
+        <table class="transactions-table">
+            <thead>
+            <tr th:if="${!#lists.isEmpty(futuresOrdersOpen)}">
+                <th>Coin</th>
+                <th>Order Type</th>
+                <th>Side</th>
+                <th>Exec. Price</th>
+                <th>Amount</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${futuresOrdersOpen}">
+                <td th:text="${order.coin.symbol}">err</td>
+                <td th:text="${order.type}">err</td>
+                <td th:text="${order.side}">err</td>
+                <td th:text="${order.price}">err</td>
+                <td th:text="${order.amount}">err</td>
+                <td th:text="${order.orderValue}">err</td>
+                <td th:text="${order.status}">err</td>
+                <td th:text="${#dates.format(order.createdAt, 'yyyy‑MM‑dd HH:mm:ss')}">2025‑06‑04 14:00:00</td>
+                <td>
+                    <form th:action="@{/xyvox/api/v1/trade/perps/limit/close}" method="post" style="display:inline;">
+                        <input type="hidden" name="orderId" th:value="${order.id}" />
+                        <button type="submit" class="btn-close">Close</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(futuresOrdersOpen)}">
+                <td colspan="9" style="color:#D8CFFF; text-align:center; padding:12px;">
+                    No open futures orders.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bottom-content hidden" id="tradeHistoryContent">
+        <table class="transactions-table">
+            <thead>
+            <tr th:if="${!#lists.isEmpty(futuresPositionsHistory)}">
+                <th>Coin</th>
+                <th>Side</th>
+                <th>Exec. Price</th>
+                <th>Closing Price</th>
+                <th>Leverage</th>
+                <th>Amount</th>
+                <th>Provided Value</th>
+                <th>Position Value</th>
+                <th>P&amp;L</th>
+                <th>Time Opened</th>
+                <th>Time Closed</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="position : ${futuresPositionsHistory}">
+                <td th:text="${position.futuresOrder.coin.symbol}">ETH</td>
+                <td th:text="${position.side}">LONG/SHORT</td>
+                <td th:text="${position.entryPrice}">2000.00</td>
+                <td th:text="${position.exitPrice}">2000.00</td>
+                <td th:text="${position.leverage + 'x'}">5</td>
+                <td th:text="${position.amount}">1.5</td>
+                <td th:text="${position.providedValue}">3000.00</td>
+                <td th:text="${position.providedValue * position.leverage}">3000.00</td>
+                <td>0.00</td>
+                <td th:text="${#dates.format(position.openedAt, 'yyyy‑MM‑dd HH:mm:ss')}">2025‑06‑03 10:30:00</td>
+                <td th:text="${#dates.format(position.closedAt, 'yyyy‑MM‑dd HH:mm:ss')}">2025‑06‑03 10:30:00</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(futuresPositionsHistory)}">
+                <td colspan="11" style="color:#D8CFFF; text-align:center; padding:12px;">
+                    No position history.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bottom-content hidden" id="orderHistoryContent">
+        <table class="transactions-table">
+            <thead>
+            <tr th:if="${!#lists.isEmpty(allOrdersHistory)}">
+                <th>Coin</th>
+                <th>Order Type</th>
+                <th>Side</th>
+                <th>Exec. Price</th>
+                <th>Amount</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${allOrdersHistory}">
+                <td th:text="${order.coin.symbol}">ETH</td>
+                <td th:text="${order.type}">LIMIT</td>
+                <td th:text="${order.side}">SELL</td>
+                <td th:text="${order.price}">2000.00</td>
+                <td th:text="${order.amount}">1.5</td>
+                <td th:text="${order.orderValue}">3000.00</td>
+                <td th:text="${order.status}">CLOSED</td>
+                <td th:text="${#dates.format(order.createdAt, 'yyyy‑MM‑dd HH:mm:ss')}">2025‑06‑03 10:30:00</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(allOrdersHistory)}">
+                <td colspan="8" style="color:#D8CFFF; text-align:center; padding:12px;">
+                    No order history.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script th:inline="javascript">
+
+    let tokenId = /*[[${tokenId}]]*/ 0;
+    let allowedSymbols = /*[[${allowedSymbols}]]*/ [
+        "BINANCE:BTCUSDT",
+        "BINANCE:ETHUSDT",
+        "BINANCE:SOLUSDT",
+        "BINANCE:BNBUSDT",
+        "BINANCE:ADAUSDT"
+    ];
+
+    let symbolNames = /*[[${symbolNames}]]*/ {
+        "BINANCE:BTCUSDT": "BTC/USDT",
+        "BINANCE:ETHUSDT": "ETH/USDT",
+        "BINANCE:SOLUSDT": "SOL/USDT",
+        "BINANCE:BNBUSDT": "BNB/USDT",
+        "BINANCE:ADAUSDT": "ADA/USDT"
+    };
+    console.log("Значение tokenId из GET-параметра:", tokenId);
+
+</script>
+
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+
+    let tvWidget = null;
+    let chartRef = null;
+
+    const csrfToken  = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+
+    function createWidget(symbol) {
+
+        document.getElementById("tradingview_chart").innerHTML = "";
+
+
+        tvWidget = new TradingView.widget({
+            library_path: "https://charting-library.tradingview-widget.com/charting_library/",
+            debug: true,
+            width:  "100%",
+            height: "100%",
+            symbol: symbol,
+            interval: "D",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#190026",
+            enable_publishing: false,
+            allow_symbol_change: false,
+            container_id: "tradingview_chart",
+            autosize: true
+        });
+
+
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const select = document.getElementById('symbolSelect');
+        console.log(select)
+
+
+        allowedSymbols.forEach(sym => {
+            const opt = document.createElement('option');
+            opt.value = sym;
+            opt.textContent = symbolNames[sym];
+            select.appendChild(opt);
+        });
+        select.value = allowedSymbols[tokenId];
+
+
+        createWidget(allowedSymbols[tokenId]);
+        console.log("created widget 2" + tvWidget);
+
+        function updateHiddenSymbols(sym) {
+            document.getElementById('symbolGeneral').value     = sym;
+
+            const el_perpsMarket = document.getElementById('perpsMarketSymbol');
+            if (el_perpsMarket) el_perpsMarket.value = sym;
+
+            const el_perpsLimit = document.getElementById('perpsLimitSymbol');
+            if (el_perpsLimit) el_perpsLimit.value = sym;
+
+            const el_spotMarket = document.getElementById('spotMarketSymbol');
+            if (el_spotMarket) el_spotMarket.value = sym;
+
+            const el_spotLimit = document.getElementById('spotLimitSymbol');
+            if (el_spotLimit) el_spotLimit.value = sym;
+        }
+
+
+        updateHiddenSymbols(select.value);
+
+        select.addEventListener('change', () => {
+            const newSymbol = select.value;
+            console.log(select.value);
+            updateHiddenSymbols(newSymbol);
+            createWidget(newSymbol);
+        });
+
+        const el = document.getElementById('perpsMarketSymbol');
+        if (el) initTradingPanel();
+
+
+        async function fetchPrice(symbol) {
+            const res = await fetch('/xyvox/api/v1/price?symbol=' + encodeURIComponent(symbol));
+            if (!res.ok) return null;
+            const json = await res.json();
+            return json.price;
+        }
+
+        async function closePosition(positionId) {
+
+            console.log("closing position ")
+
+            await fetch('/xyvox/api/v1/trade/perps/position/close', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    [csrfHeader]: csrfToken
+                },
+                body: new URLSearchParams({ positionId })
+            });
+        }
+
+        async function updateAllPnls() {
+            const elems = document.querySelectorAll('.pnl-value');
+            for (let el of elems) {
+                const symbol       = el.dataset.symbol;
+                const entry        = parseFloat(el.dataset.entry);
+                const amount       = parseFloat(el.dataset.amount);
+                const leverage     = parseFloat(el.dataset.leverage);
+                const side         = el.dataset.side.toUpperCase();
+                const provided     = parseFloat(el.dataset.provided);
+                const stopLoss     = parseFloat(el.dataset.sl);
+                const takeProfit   = parseFloat(el.dataset.tp);
+                const positionId   = el.dataset.id;
+
+                const currentPrice = await fetchPrice(symbol);
+                if (currentPrice == null) continue;
+
+                let pnl;
+                if (side === 'LONG') {
+                    pnl = (currentPrice - entry) * amount * leverage;
+                } else {
+                    pnl = (entry - currentPrice) * amount * leverage;
+                }
+                el.textContent = pnl.toFixed(2);
+
+                if (pnl <= -provided) {
+                    await closePosition(positionId);
+                    el.closest('tr').remove();
+                    continue;
+                }
+
+                if (side === 'LONG') {
+                    if ((takeProfit > 0 && currentPrice >= takeProfit)
+                        || (stopLoss > 0 && currentPrice <= stopLoss)) {
+                        console.log(" limit for long worked ")
+                        await closePosition(positionId);
+                        el.closest('tr').remove();
+                        continue;
+                    }
+                } else {
+
+
+                    if ((takeProfit > 0 && currentPrice <= takeProfit) ||
+                        (stopLoss > 0 && currentPrice >= stopLoss)) {
+                        console.log(" limit for short worked ")
+                        await closePosition(positionId);
+                        el.closest('tr').remove();
+                        continue;
+                    }
+                }
+            }
+        }
+
+        updateAllPnls();
+        setInterval(updateAllPnls, 1000);
+
+
+
+    });
+
+
+    function initTradingPanel() {
+        const perpsTab = document.getElementById('perpsTab');
+        const spotTab = document.getElementById('spotTab');
+        const marketIndicator = document.getElementById('marketIndicator');
+
+        const marketBtn = document.getElementById('marketBtn');
+        const limitBtn = document.getElementById('limitBtn');
+
+        const perpsMarketForm = document.getElementById('perpsMarketForm');
+        const perpsLimitForm = document.getElementById('perpsLimitForm');
+        const spotMarketForm = document.getElementById('spotMarketForm');
+        const spotLimitForm = document.getElementById('spotLimitForm');
+
+        const positionsTab = document.getElementById('positionsTab');
+        const openSpotOrdersTab = document.getElementById('openSpotOrdersTab');
+        const openPerpsOrdersTab = document.getElementById('openPerpsOrdersTab');
+        const tradeHistoryTab = document.getElementById('tradeHistoryTab');
+        const orderHistoryTab = document.getElementById('orderHistoryTab');
+
+        const positionsContent = document.getElementById('positionsContent');
+        const openSpotOrdersContent = document.getElementById('openSpotOrdersContent');
+        const openFuturesOrdersContent = document.getElementById('openFuturesOrdersContent');
+        const tradeHistoryContent = document.getElementById('tradeHistoryContent');
+        const orderHistoryContent = document.getElementById('orderHistoryContent');
+
+        const balancesContainer = document.getElementById('balances-container');
+
+        function clearActiveTabs() {
+            perpsTab.classList.remove('active');
+            spotTab.classList.remove('active');
+        }
+        function moveIndicator(isSpot) {
+            marketIndicator.style.left = isSpot ? '50%' : '0%';
+        }
+        function clearOrderTypeTabs() {
+            marketBtn.classList.remove('active');
+            limitBtn.classList.remove('active');
+        }
+        function hideAllForms() {
+            perpsMarketForm.classList.remove('active');
+            perpsLimitForm.classList.remove('active');
+            spotMarketForm.classList.remove('active');
+            spotLimitForm.classList.remove('active');
+        }
+        function clearBottomTabs() {
+            positionsTab.classList.remove('active');
+            openSpotOrdersTab.classList.remove('active');
+            openPerpsOrdersTab.classList.remove('active');
+            tradeHistoryTab.classList.remove('active');
+            orderHistoryTab.classList.remove('active');
+        }
+        function hideAllBottomContent() {
+            positionsContent.classList.add('hidden');
+            openSpotOrdersContent.classList.add('hidden');
+            openFuturesOrdersContent.classList.add('hidden');
+            tradeHistoryContent.classList.add('hidden');
+            orderHistoryContent.classList.add('hidden');
+        }
+
+        perpsTab.addEventListener('click', () => {
+            clearActiveTabs();
+            perpsTab.classList.add('active');
+            moveIndicator(false);
+            clearOrderTypeTabs();
+            marketBtn.classList.add('active');
+            hideAllForms();
+            perpsMarketForm.classList.add('active');
+
+            localStorage.setItem('trade_mainTab', 'perps');
+            localStorage.setItem('trade_subTab', 'market');
+
+            if (balancesContainer) {
+                balancesContainer.style.display = 'none';
+            }
+
+        });
+
+        spotTab.addEventListener('click', () => {
+            clearActiveTabs();
+            spotTab.classList.add('active');
+            moveIndicator(true);
+            clearOrderTypeTabs();
+            marketBtn.classList.add('active');
+            hideAllForms();
+            spotMarketForm.classList.add('active');
+
+            localStorage.setItem('trade_mainTab', 'spot');
+            localStorage.setItem('trade_subTab', 'market');
+
+            if (spotTab.classList.contains('active') && balancesContainer) {
+                balancesContainer.style.display = '';
+            }
+        });
+
+        marketBtn.addEventListener('click', () => {
+            clearOrderTypeTabs();
+            marketBtn.classList.add('active');
+            hideAllForms();
+            if (perpsTab.classList.contains('active')) {
+                perpsMarketForm.classList.add('active');
+                localStorage.setItem('trade_mainTab', 'perps');
+            } else {
+                spotMarketForm.classList.add('active');
+                localStorage.setItem('trade_mainTab', 'spot');
+            }
+            localStorage.setItem('trade_subTab', 'market');
+
+            if (spotTab.classList.contains('active') && balancesContainer) {
+                balancesContainer.style.display = '';
+            }
+        });
+
+        limitBtn.addEventListener('click', () => {
+            clearOrderTypeTabs();
+            limitBtn.classList.add('active');
+            hideAllForms();
+            if (perpsTab.classList.contains('active')) {
+                perpsLimitForm.classList.add('active');
+                localStorage.setItem('trade_mainTab', 'perps');
+            } else {
+                spotLimitForm.classList.add('active');
+                localStorage.setItem('trade_mainTab', 'spot');
+            }
+
+            localStorage.setItem('trade_subTab', 'limit');
+
+            if (spotTab.classList.contains('active') && balancesContainer) {
+                balancesContainer.style.display = '';
+            }
+        });
+
+
+        positionsTab.addEventListener('click', () => {
+            clearBottomTabs();
+            positionsTab.classList.add('active');
+            hideAllBottomContent();
+            positionsContent.classList.remove('hidden');
+            localStorage.setItem('trade_bottomTab', 'positions');
+        });
+        openSpotOrdersTab.addEventListener('click', () => {
+            clearBottomTabs();
+            openSpotOrdersTab.classList.add('active');
+            hideAllBottomContent();
+            openSpotOrdersContent.classList.remove('hidden');
+            localStorage.setItem('trade_bottomTab', 'openSpotOrders');
+        });
+        openPerpsOrdersTab.addEventListener('click', () => {
+            clearBottomTabs();
+            openPerpsOrdersTab.classList.add('active');
+            hideAllBottomContent();
+            openFuturesOrdersContent.classList.remove('hidden');
+            localStorage.setItem('trade_bottomTab', 'openPerpsOrders');
+        });
+        tradeHistoryTab.addEventListener('click', () => {
+            clearBottomTabs();
+            tradeHistoryTab.classList.add('active');
+            hideAllBottomContent();
+            tradeHistoryContent.classList.remove('hidden');
+            localStorage.setItem('trade_bottomTab', 'tradeHistory');
+        });
+        orderHistoryTab.addEventListener('click', () => {
+            clearBottomTabs();
+            orderHistoryTab.classList.add('active');
+            hideAllBottomContent();
+            orderHistoryContent.classList.remove('hidden');
+            localStorage.setItem('trade_bottomTab', 'orderHistory');
+        });
+
+
+
+        const savedMain = localStorage.getItem('trade_mainTab');
+        const savedSub  = localStorage.getItem('trade_subTab');
+
+
+        const mainTab = savedMain === 'spot' ? spotTab : perpsTab;
+        const subTab  = savedSub === 'limit' ? limitBtn : marketBtn;
+
+        mainTab.click();
+        subTab.click();
+
+        const savedBottom = localStorage.getItem('trade_bottomTab');
+        if (savedBottom === 'openSpotOrders') {
+            openSpotOrdersTab.click();
+        } else if (savedBottom === 'openPerpsOrders'){
+            openPerpsOrdersTab.click();
+        } else if (savedBottom === 'tradeHistory') {
+            tradeHistoryTab.click();
+        } else if (savedBottom === 'orderHistory') {
+            orderHistoryTab.click();
+        } else {
+            positionsTab.click();
+        }
+    }
+
+</script>
+</body>
+</html>
