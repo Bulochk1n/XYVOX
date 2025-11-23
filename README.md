@@ -14,6 +14,8 @@ XYVOX is a learning-oriented cryptocurrency trading platform that combines:
 
 The goal is to provide a **clean, understandable exchange UI** that feels like a real product, but remains small enough to study, hack on and extend.
 
+**YouTube** : https://youtu.be/sIvQgmowy4g?si=dTeW-l7J0MsTzYyJ
+
 ---
 
 ## 1. High-level overview
